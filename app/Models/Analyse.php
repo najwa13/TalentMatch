@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AnalysisStatus;
+use App\Enums\Recommendation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +38,8 @@ class Analyse extends Model
             'strengths' => 'array',
             'weaknesses' => 'array',
             'missing_skills' => 'array',
+            'recommendation' => Recommendation::class,
+            'status' => AnalysisStatus::class,
         ];
     }
 
