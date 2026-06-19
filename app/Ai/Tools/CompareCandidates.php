@@ -17,8 +17,8 @@ class CompareCandidates implements Tool
 
     public function handle(Request $request): Stringable|string
     {
-        $analysisId1 = $request->input('analysis_id_1');
-        $analysisId2 = $request->input('analysis_id_2');
+        $analysisId1 = $request->integer('analysis_id_1');
+        $analysisId2 = $request->integer('analysis_id_2');
 
         $analyse1 = Analyse::with('candidat')->find($analysisId1);
         $analyse2 = Analyse::with('candidat')->find($analysisId2);

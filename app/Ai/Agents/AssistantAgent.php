@@ -36,4 +36,9 @@ Utilise ces outils pour répondre aux questions avec des données réelles. N\'i
             new CompareCandidates,
         ];
     }
+
+    protected function maxConversationMessages(): int
+    {
+        return 50;
+    }
 }

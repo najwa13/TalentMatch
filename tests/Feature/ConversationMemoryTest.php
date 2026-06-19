@@ -7,52 +7,32 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AssistantTest extends TestCase
+class ConversationMemoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_unauthenticated_user_cannot_ask(): void
-    {
-        $this->postJson('/api/assistant/ask', [
-            'message' => 'Bonjour',
-        ])->assertStatus(401);
-    }
-
-    public function test_ask_requires_message(): void
+    public function test_new_conversation_creates_and_returns_conversation_id(): void
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user)
-            ->postJson('/api/assistant/ask', [])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['message']);
-    }
-
-    public function test_ask_returns_response(): void
-    {
-        $user = User::factory()->create();
-
-        AssistantAgent::fake([
-            'Je suis un assistant RH. Je peux vous aider avec les analyses de CV.',
-        ]);
+        AssistantAgent::fake(['Premier message']);
 
         $response = $this->actingAs($user)
             ->postJson('/api/assistant/ask', [
-                'message' => 'Bonjour, que peux-tu faire ?',
+                'message' => 'Bonjour',
             ]);
 
         $response->assertStatus(200)
             ->assertJsonStructure(['response', 'conversation_id']);
+
+        $this->assertNotNull($response->json('conversation_id'));
     }
 
-    public function test_ask_continues_conversation(): void
+    public function test_continuing_conversation_loads_context(): void
     {
         $user = User::factory()->create();
 
-        AssistantAgent::fake([
-            'Première réponse',
-            'Deuxième réponse',
-        ]);
+        AssistantAgent::fake(['Première réponse', 'Deuxième réponse']);
 
         $first = $this->actingAs($user)
             ->postJson('/api/assistant/ask', ['message' => 'Salut']);
@@ -66,10 +46,11 @@ class AssistantTest extends TestCase
             ]);
 
         $second->assertStatus(200)
-            ->assertJsonStructure(['response', 'conversation_id']);
+            ->assertJsonStructure(['response', 'conversation_id'])
+            ->assertJson(['conversation_id' => $conversationId]);
     }
 
-    public function test_ask_with_invalid_conversation_id_returns_404(): void
+    public function test_continuing_non_existent_conversation_returns_404(): void
     {
         $user = User::factory()->create();
 

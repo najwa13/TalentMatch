@@ -17,7 +17,7 @@ class GetJobRequirements implements Tool
 
     public function handle(Request $request): Stringable|string
     {
-        $offerId = $request->input('offer_id');
+        $offerId = $request->integer('offer_id');
 
         $offer = Offer::find($offerId);
 
